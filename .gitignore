@@ -19,3 +19,5 @@ site/
 
 # Do not commit Poetry lockfiles for libraries
 poetry.lock
+# IntelliJ / PyCharm etc.
+.idea
