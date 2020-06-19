@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from ...exceptions import MultipleSubscriptionException
 from ...models import Customer
 from ...settings import CANCELLATION_AT_PERIOD_END, subscriber_request_callback
 from .serializers import CreateSubscriptionSerializer, SubscriptionSerializer
@@ -28,12 +29,20 @@ class SubscriptionRestView(APIView):
 
         Returns with status code 200.
         """
-        customer, _created = Customer.get_or_create(
-            subscriber=subscriber_request_callback(self.request)
-        )
+        try:
+            subscriber = subscriber_request_callback(self.request)
+            customers = Customer.objects.filter(
+                subscriber=subscriber,
+            )
 
-        serializer = SubscriptionSerializer(customer.subscription)
-        return Response(serializer.data)
+            for customer in customers:
+                if customer.subscription:
+                    serializer = SubscriptionSerializer(customer.subscription)
+                    return Response(serializer.data)
+        except (Customer.DoesNotExist, MultipleSubscriptionException):
+            pass
+
+        return Response({})
 
     def post(self, request, **kwargs):
         """
