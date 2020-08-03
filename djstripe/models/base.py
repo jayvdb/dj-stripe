@@ -196,10 +196,13 @@ class StripeModel(models.Model):
 
     @classmethod
     def _find_owner_account(cls, data):
+        from .account import Account
+        stripe_account = getattr(data, "stripe_account", None)
+        if stripe_account:
+            return Account.objects.get(id=stripe_account)
+
         api_key = getattr(data, "api_key", "")
         if api_key:
-            from .account import Account
-
             return Account.get_or_retrieve_for_api_key(api_key)
 
     @classmethod
