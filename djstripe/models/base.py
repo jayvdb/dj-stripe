@@ -463,6 +463,12 @@ class StripeModel(models.Model):
         :type stripe_account: string
         :returns: The instantiated object.
         """
+        if 'subscriber' in data:
+            if 'balance' not in data:
+                data['balance'] = 0
+            if 'delinquent' not in data:
+                data['delinquent'] = False
+
         instance = cls(
             **cls._stripe_object_to_record(
                 data,
@@ -541,6 +547,13 @@ class StripeModel(models.Model):
         try:
             return cls.stripe_objects.get(id=id_), False
         except cls.DoesNotExist:
+            if data.get('deleted'):
+                should_expand = False
+                if data.get('object') == "customer":
+                    if 'balanace' not in data:
+                        data['balance'] = 0
+                        data['delinquent'] = False
+                    
             if is_nested_data and refetch:
                 # This is what `data` usually looks like:
                 # {"id": "cus_XXXX", "default_source": "card_XXXX"}
@@ -558,6 +571,12 @@ class StripeModel(models.Model):
         assert not should_expand, "No data to create {} from {}".format(
             cls.__name__, field_name
         )
+
+        if data.get('deleted'):
+            if data.get('object') == "customer":
+                if 'balanace' not in data:
+                    data['balance'] = 0
+                    data['delinquent'] = False
 
         try:
             # We wrap the `_create_from_stripe_object` in a transaction to
