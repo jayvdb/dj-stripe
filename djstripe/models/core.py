@@ -414,6 +414,7 @@ class Customer(StripeModel):
 
     address = JSONField(null=True, blank=True, help_text="The customer's address.")
     balance = StripeQuantumCurrencyAmountField(
+        default=0,
         help_text=(
             "Current balance (in cents), if any, being stored on the customer's "
             "account. "
@@ -442,6 +443,7 @@ class Customer(StripeModel):
         on_delete=models.SET_NULL, null=True, related_name="customers"
     )
     delinquent = models.BooleanField(
+        default=False,
         help_text="Whether or not the latest charge for the customer's "
         "latest invoice has failed."
     )
