@@ -245,17 +245,29 @@ class StripeModel(models.Model):
         # Iterate over all the fields that we know are related to Stripe,
         # let each field work its own magic
         ignore_fields = ["date_purged", "subscriber"]  # XXX: Customer hack
+        active = data.get('active')
+        if active and data.get('deleted'):
+            active = False
+
         for field in cls._meta.fields:
             if field.name.startswith("djstripe_") or field.name in ignore_fields:
                 continue
             if isinstance(field, models.ForeignKey):
-                field_data, skip = cls._stripe_object_field_to_foreign_key(
-                    field=field,
-                    manipulated_data=manipulated_data,
-                    current_ids=current_ids,
-                    pending_relations=pending_relations,
-                    stripe_account=stripe_account,
-                )
+
+                import stripe
+                try:
+                    field_data, skip = cls._stripe_object_field_to_foreign_key(
+                        field=field,
+                        manipulated_data=manipulated_data,
+                        current_ids=current_ids,
+                        pending_relations=pending_relations,
+                        stripe_account=stripe_account,
+                    )
+                except stripe.error.InvalidRequestError:
+                    if not active:
+                        continue
+                    raise
+
                 if skip:
                     continue
             else:
