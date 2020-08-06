@@ -29,6 +29,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        self._options = options
         app_label = "djstripe"
         app_config = apps.get_app_config(app_label)
         model_list = []  # type: List[models.StripeModel]
