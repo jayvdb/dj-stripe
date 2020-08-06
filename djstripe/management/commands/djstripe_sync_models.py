@@ -60,6 +60,14 @@ class Command(BaseCommand):
                 key, _, value = record_filter.partition('=')
                 key, value = key.strip(), value.strip()
                 record_filter = {key: value}
+            elif ' gt ' in record_filter:
+                key, _, value = record_filter.partition(' gt ')
+                key, value = key.strip(), value.strip()
+                record_filter = {key: {'gt': value}}
+            elif ' lt ' in record_filter:
+                key, _, value = record_filter.partition(' lt ')
+                key, value = key.strip(), value.strip()
+                record_filter = {key: {'lt': value}}
             else:
                 record_filter = {'ids': [record_filter]}
         else:
