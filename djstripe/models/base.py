@@ -182,6 +182,24 @@ class StripeModel(models.Model):
             **kwargs
         )
 
+    def _api_update(self, api_key=None, stripe_account=None, **kwargs):
+        """
+        Call the stripe API's modify operation for this model
+
+        :param api_key: The api key to use for this request.
+            Defaults to djstripe_settings.STRIPE_SECRET_KEY.
+        :type api_key: string
+        :param stripe_account: The optional connected account \
+            for which this request is being made.
+        :type stripe_account: string
+        """
+        api_key = api_key or self.default_api_key
+
+        instance = self.api_retrieve(api_key=api_key, stripe_account=stripe_account)
+        return instance.request(
+            "post", instance.instance_url(), **kwargs
+        )
+
     def str_parts(self):
         """
         Extend this to add information to the string representation of the object
