@@ -49,6 +49,10 @@ class Command(MultiModelCommand):
                 return False, "PaymentMethod can not be deleted"
             return True, ""
 
+            # Invoice will all fail for some sites due to:
+            # You can't delete invoices created by subscriptions.
+            # Probably not possible to determine whether all records fail
+
         if 'active' in [f.name for f in model._meta.fields]:
             return False, "{} has no 'active' field".format(model.__name__)
 
@@ -74,6 +78,7 @@ class Command(MultiModelCommand):
             self.stdout.write("{} {}:".format(action, model_name))
 
         assert not settings.STRIPE_LIVE_MODE
+
         count = 0
         failed = 0
 
@@ -141,6 +146,9 @@ class Command(MultiModelCommand):
                             stripe_obj.delete()
                         continue
 
+                    # TODO: Handle when djstripe_obj.djstripe_owner_account is empty
+                    # Load from stripe_obj.stripe_account?
+
                     # TODO: implement archive (non-delete)
 
                     if delete:
@@ -165,9 +173,13 @@ class Command(MultiModelCommand):
                     raise
 
     def delete(self, obj, only_delete_if_missing=False):
+        stripe_account = None
+        if obj.djstripe_owner_account:
+            stripe_account = obj.djstripe_owner_account.id
+
         try:
             instance = obj.api_retrieve(
-                stripe_account=obj.djstripe_owner_account.id
+                stripe_account=stripe_account
             )
         except stripe.error.InvalidRequestError:
             print("Unable to fetch stripe object {}".format(obj.id))
