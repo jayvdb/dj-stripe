@@ -390,7 +390,9 @@ class Charge(StripeModel):
         """
 
         if "destination" in data and data["destination"]:
-            return target_cls._get_or_create_from_stripe_object(data, "destination")[0]
+            return target_cls.get_or_retrieve(
+                id=data["destination"],
+            )
 
     def _attach_objects_post_save_hook(self, cls, data, pending_relations=None):
         super()._attach_objects_post_save_hook(
@@ -1403,12 +1405,14 @@ class Event(StripeModel):
     def customer(self):
         data = self.data["object"]
         if data["object"] == "customer":
-            field = "id"
+            customer_id = data.get("id")
         else:
-            field = "customer"
+            customer_id = data.get("customer")
 
-        if data.get(field):
-            return Customer._get_or_create_from_stripe_object(data, field)[0]
+        if customer_id:
+            return Customer.get_or_retrieve(
+                id=customer_id, djstripe_owner_account=self.djstripe_owner_account
+            )
 
 
 class FileUpload(StripeModel):
