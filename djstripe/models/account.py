@@ -118,9 +118,7 @@ class Account(StripeModel):
 
     @classmethod
     def get_connected_account_from_token(cls, access_token):
-        account_data = cls.stripe_class.retrieve(api_key=access_token)
-
-        return cls._get_or_create_from_stripe_object(account_data)[0]
+        return cls.get_or_retrieve_for_api_key(access_token)
 
     @classmethod
     def get_default_account(cls):
@@ -129,11 +127,7 @@ class Account(StripeModel):
         if djstripe_settings.STRIPE_SECRET_KEY.startswith("rk_"):
             return None
 
-        account_data = cls.stripe_class.retrieve(
-            api_key=djstripe_settings.STRIPE_SECRET_KEY
-        )
-
-        return cls._get_or_create_from_stripe_object(account_data)[0]
+        return cls.get_or_retrieve_for_api_key(djstripe_settings.STRIPE_SECRET_KEY)
 
     @classmethod
     def get_or_retrieve_for_api_key(cls, api_key: str):
