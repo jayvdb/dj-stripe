@@ -197,7 +197,7 @@ class StripeModel(models.Model):
 
         instance = self.api_retrieve(api_key=api_key, stripe_account=stripe_account)
         return instance.request(
-            "post", instance.instance_url(), **kwargs
+            "post", instance.instance_url(), params=kwargs
         )
 
     def str_parts(self):
