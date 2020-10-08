@@ -1,6 +1,23 @@
 import stripe
 from django.db import models, transaction
 
+JSONStrings = tuple()
+try:
+    from django.forms.fields import JSONString
+    JSONStrings = JSONStrings + (JSONString,)
+except ImportError:
+    pass
+try:
+    from django.contrib.postgres.forms.jsonb import JSONString
+    JSONStrings = JSONStrings + (JSONString,)
+except ImportError:
+    pass
+try:
+    from jsonfield.fields import JSONString
+    JSONStrings = JSONStrings + (JSONString,)
+except ImportError:
+    pass
+
 from .. import enums
 from .. import settings as djstripe_settings
 from ..fields import (
@@ -114,6 +131,8 @@ class Account(StripeModel):
         The business’s publicly available website.
         :rtype: Optional[str]
         """
+        if isinstance(self.business_profile, JSONStrings):
+            return None
         return (self.business_profile or {}).get("url")
 
     @classmethod
