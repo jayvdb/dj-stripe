@@ -25,47 +25,6 @@ class SubscriptionSerializer(AutoCustomerModelSerializerMixin, ModelSerializer):
         model = Subscription
         exclude = ["default_tax_rates"]
 
-    # StripeModel fields
-    id = serializers.CharField(required=False)
-    created = serializers.DateTimeField(required=False)
-    metadata = serializers.JSONField(required=False)
-    description = serializers.CharField(required=False)
-
-    # Subscription-specific fields
-    application_fee_percent = serializers.DecimalField(
-        required=False, max_digits=5, decimal_places=2
-    )
-    billing_cycle_anchor = serializers.DateTimeField(required=False)
-    cancel_at_period_end = serializers.NullBooleanField(required=False)
-    canceled_at = serializers.DateTimeField(required=False)
-    collection_method = serializers.CharField(required=False)
-    current_period_end = serializers.DateTimeField(required=False)
-    current_period_start = serializers.DateTimeField(required=False)
-    customer = serializers.SlugField(required=False, source="customer.id")
-    days_until_due = serializers.IntegerField(required=False)
-    default_payment_method = serializers.SlugField(
-        required=False, source="default_payment_method.id"
-    )
-    default_source = serializers.SlugField(required=False, source="default_source.id")
-    discount = serializers.JSONField(required=False)
-    ended_at = serializers.DateTimeField(required=False)
-    next_pending_invoice_item_invoice = serializers.DateTimeField(required=False)
-    pending_invoice_item_interval = serializers.JSONField(required=False)
-    pending_setup_intent = serializers.SlugField(
-        required=False, source="pending_setup_intent.id"
-    )
-    pending_update = serializers.JSONField(required=False)
-    plan = serializers.SlugField(required=False, source="plan.id")
-    quantity = serializers.IntegerField(required=False)
-    start = serializers.DateTimeField(required=False)
-    start_date = serializers.DateTimeField(required=False)
-    status = serializers.CharField(required=False)
-    tax_percent = serializers.DecimalField(
-        required=False, max_digits=5, decimal_places=2
-    )
-    trial_end = serializers.DateTimeField(required=False)
-    trial_start = serializers.DateTimeField(required=False)
-
     def validate_status(self, value):
         if value not in dir(SubscriptionStatus):
             raise ValidationError(

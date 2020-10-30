@@ -43,7 +43,7 @@ class SubscriptionListView(AutoCreateCustomerMixin, ListCreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
-        if self.request.method.upper() == "POST":
+        if self.request and self.request.method.upper() == "POST":
             return CreateSubscriptionSerializer
         return SubscriptionSerializer
 
