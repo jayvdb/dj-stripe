@@ -9,18 +9,7 @@ class AutoCreateCustomerMixin:
     for the authenticated user, if does not yet exist.
     """
 
-    def dispatch(self, request, *args, **kwargs):
-        """Automatically creates a Customer if it does not exists yet.
-
-        The dispatch method is called after permissions and auth have been resolved,
-        but before the actual get/create/update methods are called.
-        """
-        result = super().dispatch(request, *args, **kwargs)
-        if not request.user.is_anonymous:
-            Customer.objects.get_or_create(
-                subscriber=subscriber_request_callback(self.request)
-            )
-        return result
+    pass
 
 
 class AutoCustomerModelSerializerMixin:
@@ -28,16 +17,4 @@ class AutoCustomerModelSerializerMixin:
     inside ModelSerializers.
     """
 
-    @property
-    def customer(self):
-        subscriber = subscriber_request_callback(self.context.get("request"))
-        if subscriber.is_anonymous:
-            return None
-        try:
-            customer = Customer.objects.get(
-                subscriber=subscriber, livemode=STRIPE_LIVE_MODE
-            )
-        except Customer.DoesNotExist:
-            return None
-        else:
-            return customer
+    pass
